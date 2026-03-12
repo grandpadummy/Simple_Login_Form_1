@@ -1,0 +1,210 @@
+Create venv
+
+python -m venv venv
+
+Activate venv
+
+source venv/Scripts/activate
+
+deactivate
+
+Create project
+
+django-admin startproject build main
+
+cd main
+
+python manage.py startapp app_1
+
+python manage.py runserver
+
+Stop server
+
+Add app_1 to settings/Installed app
+
+Add include and path to app_1
+build/urls
+
+Create urls in app_1
+
+Import url path and . from views
+
+Add paths to urls.py (home,about)
+
+Create def home and about in views
+
+Create a templates folder
+
+Create home and about html files in templates
+
+Set up boilerplate with links
+
+Run server
+
+Add the following html's and 
+links to home as well as 
+views and urls:
+
+index
+register
+login
+dashboard
+
+in views change from httpResponse
+
+to render
+
+Run server
+
+Now to create forms.py in app_1
+
+from django.contrib.auth.forms import UserCreationForm  
+
+from django.contrib.auth.models import User
+
+class CreateUserForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
+
+
+Now to the views:
+
+def register:
+
+def register(request):
+
+    form = UserCreationForm()
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("login")
+        
+    context = {
+        'registerform': form
+    }
+
+    return render(request, 'register.html', context=context)
+
+    Now to the register:
+
+    <form method="POST" autocomplete="off">
+        {% csrf_token %} 
+
+        {% registerform.as_p %}
+
+        <input type="submit" value="Register">
+
+    </form>
+
+
+Migrate changes
+
+python manage.py migrate
+
+Run server
+
+Create superuser and check if created
+
+python manage.py createsuperuser
+
+In the forms file add:
+
+AuthenticationForm to imports
+
+from django import forms
+
+from django.forms import PasswordInput, TextInput
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(widget=TextInput())
+    password = forms.CharField(widget=PasswordInput())
+
+
+Now to the views:
+
+import LoginForm
+
+from django.contrib.auth.models import auth
+
+from django.contrib.auth import authenticate, login, logout
+
+def login(request):
+
+    form = LoginForm()
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                auth.login(request, user)
+                return redirect('dashboard')
+
+
+    context = {'loginform': form}
+    return render(request, 'login.html', context=context)
+
+Now to the login:
+
+    <form method="POST" autocomplete="off">
+        {% csrf_token %} 
+
+        {{loginform.as_p}}
+
+        <input type="submit" value="Login">
+
+    </form>
+
+Run in server and check functionality
+
+Now to the views
+
+def user_logout(request):
+    auth.logout(request)
+    return redirect('login')
+
+Now to the urls
+
+Add logout to urls.py
+
+path('logout/', views.user_logout, name='logout'),
+
+Now to the dashboard:
+
+<a href="{% url 'user_logout' %}">Log Out</a>
+
+Run in server
+
+Add a link if the 
+user is returned to the login page.
+
+<br><br>
+        <a href="register">Not a Member? 
+        Register</a>
+
+On the home page add:
+
+<a href="register">Register</a>
+    <br><br>
+    <a href="login">LogIn</a>
+
+And to the register:
+
+<br><br>
+    <a href="login">Log In</a>
+
+*** Note ***
+
+I added the links on the home page 
+for convienence to navigate back to the 
+home page. you can comment them out 
+now if you please.
+
+
+--- This is the base template for simple log in and 
+registration pages. The next project will use  
+this as a template and will add 
+more function and style. ---
